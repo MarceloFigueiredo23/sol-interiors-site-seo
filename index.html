@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sol Interiors × V4 — Site Advanced + SEO Authority</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --v4-red-deep: #a10f14;
+      --v4-red-mid: #c4181e;
+      --cream: #fff;
+      --muted: rgba(255,255,255,0.88);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      font-size: 1.125rem;
+      background: var(--v4-red-deep);
+      color: var(--cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .blend-progress {
+      position: fixed; top: 0; left: 0; right: 0; height: 5px; z-index: 200;
+      background: linear-gradient(90deg, #fff, #ffd0d0);
+      transform-origin: left;
+      transform: scaleX(var(--slide-progress, 0.1));
+      transition: transform 0.4s var(--ease);
+    }
+    .slide-logo { position: absolute; top: 1.25rem; left: 1.5rem; z-index: 10; }
+    .slide-logo svg { height: clamp(22px, 3.5vh, 30px); width: auto; display: block; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35)); }
+    .slide-logo-client {
+      position: absolute; top: 1rem; right: 1.5rem; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0.35rem 0.55rem; border-radius: 12px;
+      background: rgba(255,255,255,0.96);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    }
+    .slide-logo-client img {
+      height: clamp(28px, 4.2vh, 40px); width: auto; display: block; object-fit: contain;
+    }
+    .nav-dots { position: fixed; right: 1rem; top: 50%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: 0.5rem; }
+    .nav-dots a { width: 10px; height: 10px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.45); background: transparent; cursor: pointer; transition: all 0.3s var(--ease); }
+    .nav-dots a:hover, .nav-dots a.active { background: #fff; border-color: #fff; transform: scale(1.2); }
+    .nav-arrow {
+      position: fixed; top: 50%; transform: translateY(-50%); z-index: 100;
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.35); background: rgba(161,15,20,0.55);
+      color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .nav-arrow:hover:not(:disabled) { background: rgba(255,255,255,0.2); border-color: #fff; }
+    .nav-arrow:disabled { opacity: 0.25; cursor: default; }
+    .nav-arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .nav-arrow--prev { left: 1rem; }
+    .nav-arrow--next { right: 3rem; }
+    .deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+    section {
+      position: absolute; inset: 0;
+      padding: clamp(2.5rem, 5vh, 3.5rem) clamp(1.25rem, 4vw, 3rem) 4.5rem;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      overflow: hidden; opacity: 0; visibility: hidden;
+      transform: translateX(60px);
+      transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), visibility 0.4s;
+      z-index: 0;
+    }
+    section.slide-active { opacity: 1; visibility: visible; transform: translateX(0); z-index: 2; }
+    section.slide-exit-left { transform: translateX(-60px); opacity: 0; }
+    section.slide-exit-right { transform: translateX(60px); opacity: 0; }
+    section::before {
+      content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(255, 74, 74, 0.45) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 55% at 85% 90%, rgba(255, 42, 26, 0.35) 0%, transparent 50%),
+        radial-gradient(ellipse 100% 100% at 50% 50%, var(--v4-red-mid) 0%, var(--v4-red-deep) 70%, #6b080c 100%);
+    }
+    .inner { position: relative; z-index: 2; width: 100%; max-width: 960px; max-height: calc(100vh - 5rem); }
+    .glass {
+      background: rgba(255,255,255,0.14); backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.28); border-radius: 22px;
+      padding: clamp(1.25rem, 3vh, 2rem) clamp(1.35rem, 3.5vw, 2rem);
+      box-shadow: 0 12px 40px rgba(80, 0, 0, 0.25);
+    }
+    .eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #ffe0e0; margin-bottom: 0.6rem; }
+    h1, h2, h3 { font-family: Outfit, sans-serif; font-weight: 700; line-height: 1.12; letter-spacing: -0.02em; color: #fff; }
+    h2 { font-size: clamp(1.75rem, 4.2vh, 2.55rem); margin-bottom: 0.6rem; }
+    .gold-line { width: 64px; height: 4px; background: linear-gradient(90deg, #fff, #ffd0d0); border-radius: 2px; margin: 0.6rem 0 1.1rem; }
+    .lead { font-size: clamp(1.02rem, 1.8vh, 1.18rem); color: var(--muted); max-width: 720px; line-height: 1.55; }
+
+    #capa .inner { text-align: center; }
+    .capa-client-logo {
+      display: inline-flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.35rem; padding: 1.1rem 1.75rem; border-radius: 20px;
+      background: rgba(255,255,255,0.97); box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+    }
+    .capa-client-logo img {
+      height: clamp(72px, 14vh, 120px); width: auto; max-width: min(420px, 78vw);
+      object-fit: contain; display: block;
+    }
+    #capa h1 { font-size: clamp(2rem, 5.5vh, 3.2rem); margin-bottom: 0.75rem; }
+    #capa h1 em { font-style: normal; color: #ffe8e8; }
+    .capa-badge {
+      display: inline-block; margin-top: 1.15rem; padding: 0.5rem 1.15rem; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.45); font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase; background: rgba(255,255,255,0.12);
+    }
+    .slide-hint { margin-top: 1.5rem; font-size: 0.88rem; color: rgba(255,255,255,0.5); }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65rem; margin-top: 1rem; }
+    .card { background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.22); border-radius: 16px; padding: 1rem 1.15rem; }
+    .card-num { font-family: Outfit; font-size: 0.85rem; font-weight: 800; color: #ffe0e0; margin-bottom: 0.35rem; }
+    .card h3 { font-size: 1.02rem; margin-bottom: 0.35rem; }
+    .card p { font-size: 0.92rem; color: var(--muted); line-height: 1.5; }
+
+    .mix-row { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
+    .mix-chip {
+      flex: 1; min-width: 100px; text-align: center; padding: 0.7rem 0.75rem;
+      border-radius: 14px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.28);
+    }
+    .mix-chip strong { display: block; font-family: Outfit; font-size: 1.05rem; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 0.15rem; }
+    .mix-chip span { font-size: 0.78rem; color: var(--muted); }
+
+    .qty-callout {
+      margin-top: 0.9rem; padding: 0.75rem 1rem; border-radius: 14px;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+      font-size: 0.95rem; color: #fff; font-weight: 600;
+    }
+    .qty-callout span { color: #ffe8e8; }
+
+    .cases-spaced { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.32em; text-transform: uppercase; color: #ffe0e0; margin-bottom: 0.35rem; }
+    #cases-intro .inner { max-width: 520px; }
+    #cases-intro h2 { font-size: clamp(2.8rem, 7vh, 4rem); margin-bottom: 0.5rem; }
+
+    .grid-cases-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-top: 0.75rem; }
+    .case-visual {
+      border-radius: 12px; overflow: hidden;
+      background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.22);
+      display: flex; flex-direction: column;
+    }
+    .case-visual .case-img-wrap {
+      display: flex; align-items: center; justify-content: center;
+      min-height: clamp(120px, 17vh, 155px);
+      padding: 0.55rem;
+      background: linear-gradient(180deg, #1a0a0c 0%, #0f0608 100%);
+    }
+    .case-visual img {
+      width: 100%; height: auto;
+      max-height: clamp(108px, 15vh, 140px);
+      object-fit: contain; object-position: center; display: block;
+    }
+    .case-visual .case-meta { padding: 0.45rem 0.5rem 0.5rem; flex: 1; }
+    .case-visual h3 { font-size: 0.8rem; margin-bottom: 0.1rem; }
+    .case-visual p { font-size: 0.66rem; color: var(--muted); line-height: 1.35; }
+
+    .cron-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.85rem; }
+    .cron-phase {
+      padding: 0.55rem 0.65rem; border-radius: 12px;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    }
+    .cron-phase .cron-week { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; color: #ffe0e0; text-transform: uppercase; }
+    .cron-phase h3 { font-size: 0.84rem; margin: 0.15rem 0 0.12rem; }
+    .cron-phase p { font-size: 0.68rem; color: var(--muted); line-height: 1.35; }
+
+    .page-list {
+      list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.7rem;
+    }
+    .page-list li {
+      font-size: 0.78rem; color: var(--muted); padding: 0.3rem 0.6rem;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 999px;
+    }
+
+    .list { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.75rem; }
+    .list li { font-size: 0.95rem; color: var(--muted); padding-left: 1.35rem; position: relative; }
+    .list li::before { content: "✓"; position: absolute; left: 0; color: #fff; font-weight: 700; }
+    .list.excluded li::before { content: "—"; color: rgba(255,255,255,0.45); }
+
+    .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-top: 0.85rem; }
+    .plan { border-radius: 18px; padding: 1.1rem 1.15rem; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); }
+    .plan.featured { border-color: #fff; background: rgba(255,255,255,0.22); box-shadow: 0 8px 32px rgba(80,0,0,0.2); }
+    .plan-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #ffe8e8; margin-bottom: 0.3rem; }
+    .plan h3 { font-size: 1.05rem; margin-bottom: 0.2rem; }
+    .plan-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .plan-price { font-family: Outfit; font-size: clamp(1.85rem, 4vh, 2.35rem); font-weight: 800; line-height: 1; margin: 0.3rem 0; }
+    .plan-price small { font-size: 0.95rem; font-weight: 600; opacity: 0.85; }
+    .plan-total { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .plan ul { list-style: none; margin-top: 0.5rem; }
+    .plan ul li { font-size: 0.82rem; color: var(--muted); padding-left: 1.15rem; position: relative; margin-bottom: 0.32rem; }
+    .plan ul li::before { content: "✓"; position: absolute; left: 0; font-weight: 700; color: #fff; }
+    .plan-alt {
+      margin-top: 0.55rem; padding-top: 0.55rem; border-top: 1px solid rgba(255,255,255,0.22);
+      font-size: 0.88rem; color: #ffe8e8; font-weight: 600;
+    }
+    .seo-strip {
+      margin-top: 0.85rem; padding: 0.85rem 1rem; border-radius: 14px;
+      background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.3);
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 0.75rem; align-items: center;
+    }
+    .seo-strip h3 { font-size: 1.05rem; margin-bottom: 0.2rem; }
+    .seo-strip p { font-size: 0.85rem; color: var(--muted); }
+    .seo-strip .seo-price { font-family: Outfit; font-size: 1.85rem; font-weight: 800; text-align: right; }
+    .seo-strip .seo-price small { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+
+    .cta-box {
+      margin-top: 0.85rem; padding: 0.9rem 1.05rem; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.1);
+    }
+    .cta-box h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+    .cta-box p { font-size: 0.9rem; color: var(--muted); }
+
+    .deck-footer {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 1.25rem; background: rgba(107,8,12,0.85); font-size: 0.85rem;
+    }
+    .deck-footer .progress-wrap { flex: 1; max-width: 120px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 1rem; overflow: hidden; }
+    .deck-footer .progress-fill { height: 100%; background: #fff; width: 10%; transition: width 0.35s var(--ease); }
+
+    @media (max-width: 780px) {
+      .grid-3, .grid-2, .grid-4, .grid-cases-6, .cron-grid, .plans, .seo-strip { grid-template-columns: 1fr; }
+      .seo-strip .seo-price { text-align: left; }
+      .slide-logo { left: 1rem; top: 1rem; }
+      .slide-logo-client { right: 1rem; top: 0.85rem; }
+      .nav-arrow--next { right: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="blend-progress"></div>
+  <nav class="nav-dots" aria-label="Slides" id="navDots">
+    <a href="#" data-slide="1" class="active"></a>
+    <a href="#" data-slide="2"></a>
+    <a href="#" data-slide="3"></a>
+    <a href="#" data-slide="4"></a>
+    <a href="#" data-slide="5"></a>
+    <a href="#" data-slide="6"></a>
+    <a href="#" data-slide="7"></a>
+    <a href="#" data-slide="8"></a>
+    <a href="#" data-slide="9"></a>
+    <a href="#" data-slide="10"></a>
+  </nav>
+  <button type="button" class="nav-arrow nav-arrow--prev" id="prevBtn" aria-label="Previous" disabled>
+    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button type="button" class="nav-arrow nav-arrow--next" id="nextBtn" aria-label="Next">
+    <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+
+  <template id="v4-logo-tpl">
+    <div class="slide-logo" aria-label="V4 Company">
+      <svg fill="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 77 20"><path fill="#fff" d="M33.023 3.575c-2.001.003-3.093 1.21-3.09 3.32l.008 6.858c.003 2.11 1.098 3.315 3.1 3.312 2-.003 3.092-1.21 3.09-3.32l-.009-6.858c-.003-2.11-1.097-3.315-3.099-3.312zm.015 11.606c-.649.001-1.057-.356-1.058-1.298l-.009-7.122c-.001-.942.406-1.3 1.055-1.302.648 0 1.057.357 1.058 1.299l.009 7.122c.001.942-.407 1.3-1.055 1.301zm-6.1-3.176l.002 1.884c.001.942-.406 1.282-1.055 1.283-.648 0-1.056-.338-1.058-1.28l-.009-7.122c-.001-.942.406-1.3 1.055-1.302.648 0 1.057.357 1.058 1.299l.002 1.413 1.927-.002-.002-1.281c-.002-2.11-1.041-3.315-3.043-3.313-2 .003-3.037 1.21-3.034 3.32l.008 6.859c.003 2.11 1.042 3.314 3.043 3.312 2.002-.003 3.038-1.21 3.035-3.32l-.002-1.752-1.927.002zM13.055 6.352L8.68 10.813c-.06.062-.017.166.067.166l4.382-.006a.096.096 0 00.096-.097l-.006-4.456c0-.087-.103-.13-.163-.068zm5.862 7.88l-2.687.004a.035.035 0 00-.035.035l.004 2.879c0 .02-.015.035-.035.035l-3.01.004a.035.035 0 01-.034-.035l-.004-2.879a.035.035 0 00-.034-.035l-8.796.012a.141.141 0 01-.14-.142l-.003-2.624v-.004a.795.795 0 01.223-.588l8.758-8.928a.035.035 0 01.025-.01l2.846-.004c.005 0 .009.001.014.003a.367.367 0 01.216.348l.01 8.677c0 .019.017.035.036.035l2.641-.004a.035.035 0 00.035-.035l-.011-8.5c-.002-1.364-1.1-2.478-2.442-2.476L4.18.016a.035.035 0 00-.034.036l.008 6.856c0 .031.037.047.06.025l4.994-5.064a.034.034 0 01.024-.01l2.603-.003c.03 0 .046.037.025.06l-8.118 8.41a.034.034 0 01-.049 0l-1.529-1.55a.036.036 0 01-.01-.026L2.143.074A.035.035 0 002.104.04C.976.185.086 1.131 0 2.294v5.972l.011 8.9a2.48 2.48 0 001.937 2.424h14.974c1.15-.199 2.034-1.224 2.032-2.448l-.003-2.873a.035.035 0 00-.035-.036zM66.47 3.682l.01 7.895-2.104-7.892-2.557.003.017 13.19 1.834-.003-.012-9.553 2.55 9.55 2.094-.004-.016-13.188-1.816.002zm-23.33.031l-1.378 9.366-1.513-9.362-2.835.003.017 13.19 1.779-.003-.012-9.327 1.532 9.325 1.927-.003 1.396-9.46.012 9.458 1.928-.002-.017-13.19-2.835.005h-.001zm33.133-.043l-1.946.002-1.549 6.013-1.564-6.009-2.131.003 2.587 8.814.005 4.371 2.039-.003-.006-4.37 2.565-8.821zm-20.44.026l-2.058 13.192 1.871-.003.35-2.393 2.501-.003.355 2.392 2.057-.003-2.092-13.186-2.983.004zm.42 9.005l.974-6.67.99 6.668-1.964.002zm-5.793-8.998l-3.002.004.017 13.189 2.038-.003-.006-4.955.964-.002c2.038-.002 3.037-1.153 3.035-3.263l-.003-1.715c-.002-2.11-1.005-3.258-3.043-3.255zm.008 6.35h-.964L49.5 5.589l.964-.001c.648-.001 1.001.3 1.002 1.242l.003 1.978c.001.942-.35 1.245-1 1.245z"></path></svg>
+    </div>
+  </template>
+
+  <template id="client-logo-tpl">
+    <div class="slide-logo-client" aria-label="Sol Interiors">
+      <img src="assets/logo-sol-interiors.png" alt="Sol Interiors" />
+    </div>
+  </template>
+
+  <div class="deck" id="deck">
+
+    <section id="capa" class="slide-active" data-slide="1">
+      <div class="inner">
+        <div class="capa-client-logo">
+          <img src="assets/logo-sol-interiors.png" alt="Sol Interiors" />
+        </div>
+        <h1>New website.<br /><em>SEO Authority. Recurring blog.</em></h1>
+        <p class="lead" style="margin:0.75rem auto 0; text-align:center; max-width:640px;">
+          A Site Advanced built for luxury interior design — plus the top SEO plan with monthly content that helps Southern California homeowners find Sol Interiors.
+        </p>
+        <span class="capa-badge">Site Advanced · SEO Authority · July 2026</span>
+        <p class="slide-hint">Arrow keys ← → · scroll · swipe</p>
+      </div>
+    </section>
+
+    <section id="contexto" data-slide="2">
+      <div class="inner glass">
+        <p class="eyebrow">Context</p>
+        <h2>Paid media brings leads.<br />The website should close the story.</h2>
+        <div class="gold-line"></div>
+        <p class="lead">Sol Interiors already runs campaigns across Orange County, San Diego, LA and Palm Springs. High-ticket renovations need a digital experience that matches the studio’s level — project showcase, clear services, and organic discovery when someone searches for a luxury designer near them.</p>
+        <div class="grid-3">
+          <article class="card">
+            <div class="card-num">01</div>
+            <h3>Brand showcase</h3>
+            <p>A visual site that presents full-home and retail work with the same care as an in-person consult.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">02</div>
+            <h3>Organic channel</h3>
+            <p>SEO Authority builds a second acquisition engine — not only Meta ads.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">03</div>
+            <h3>Content cadence</h3>
+            <p>A recurring blog that answers what homeowners and partners actually search for.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="entrega" data-slide="3">
+      <div class="inner glass">
+        <p class="eyebrow">What V4 delivers</p>
+        <h2>Site Advanced<br />in 60 to 90 days.</h2>
+        <div class="gold-line"></div>
+        <div class="mix-row">
+          <div class="mix-chip"><strong>60–90</strong><span>days</span></div>
+          <div class="mix-chip"><strong>8</strong><span>website pages</span></div>
+          <div class="mix-chip"><strong>WP</strong><span>custom WordPress</span></div>
+          <div class="mix-chip"><strong>SEO</strong><span>Authority ready</span></div>
+        </div>
+        <div class="grid-4" style="margin-top:1rem">
+          <article class="card">
+            <div class="card-num">01</div>
+            <h3>Architecture &amp; design</h3>
+            <p>UX for high-ticket design services — project-led storytelling and inquiry paths.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">02</div>
+            <h3>WordPress Advanced</h3>
+            <p>Custom theme, project portfolio module, and blog structure ready for SEO content.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">03</div>
+            <h3>SEO foundation</h3>
+            <p>Technical base, schema, and page structure prepared for the Authority plan.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">04</div>
+            <h3>Go-live</h3>
+            <p>Launch support, training, and 30 days of post-launch assistance.</p>
+          </article>
+        </div>
+        <p class="qty-callout">Website scope: <span>8 pages</span> · Blog engine included · Portfolio / projects module</p>
+      </div>
+    </section>
+
+    <section id="escopo" data-slide="4">
+      <div class="inner">
+        <div class="grid-2">
+          <div class="glass">
+            <p class="eyebrow">In scope</p>
+            <h2>Included</h2>
+            <div class="gold-line"></div>
+            <ul class="list">
+              <li>Custom WordPress — Home + <strong style="color:#fff">8 pages</strong></li>
+              <li>Dynamic projects / portfolio module</li>
+              <li>Blog structure for recurring SEO content</li>
+              <li>SEO/GEO technical foundation + schema</li>
+              <li>GA4 + Search Console setup</li>
+              <li>Conversion forms connected to your stack</li>
+              <li>30 days of post-launch support</li>
+            </ul>
+            <p class="eyebrow" style="margin-top:1rem; font-size:0.72rem;">The 8 website pages</p>
+            <ul class="page-list">
+              <li>Home</li>
+              <li>About</li>
+              <li>Services</li>
+              <li>Projects</li>
+              <li>Process</li>
+              <li>Areas we serve</li>
+              <li>Blog</li>
+              <li>Contact</li>
+            </ul>
+          </div>
+          <div class="glass">
+            <p class="eyebrow">Out of scope</p>
+            <h2>Not included</h2>
+            <div class="gold-line"></div>
+            <ul class="list excluded">
+              <li>Paid media management (already covered separately)</li>
+              <li>Ongoing SEO Authority operation (recurring plan below)</li>
+              <li>Photo / video production after launch</li>
+              <li>Hosting, domain, and premium plugin licenses</li>
+              <li>Full e-commerce checkout</li>
+            </ul>
+            <p class="qty-callout" style="margin-top:1.1rem;">Recurring blog (SEO Authority): <span>4 posts / month</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cases-intro" data-slide="5">
+      <div class="inner">
+        <p class="cases-spaced">Our</p>
+        <h2>Cases</h2>
+        <div class="gold-line"></div>
+        <p class="lead">Reference websites delivered by V4 — conversion-focused, portfolio-ready, and built to grow with content.</p>
+      </div>
+    </section>
+
+    <section id="cases" data-slide="6">
+      <div class="inner glass">
+        <p class="eyebrow">V4 portfolio</p>
+        <h2>Delivery<br />references.</h2>
+        <div class="gold-line"></div>
+        <div class="grid-cases-6">
+          <article class="case-visual">
+            <div class="case-img-wrap">
+              <img src="cases/amicia.png" alt="Amícia" loading="lazy" />
+            </div>
+            <div class="case-meta">
+              <h3>Amícia</h3>
+              <p>Wholesale fashion · B2B showcase with exclusive purchase CTA</p>
+            </div>
+          </article>
+          <article class="case-visual">
+            <div class="case-img-wrap">
+              <img src="cases/agrosure.png" alt="agrosure" loading="lazy" />
+            </div>
+            <div class="case-meta">
+              <h3>agrosure</h3>
+              <p>Agribusiness · Blog + product catalog updated by the team</p>
+            </div>
+          </article>
+          <article class="case-visual">
+            <div class="case-img-wrap">
+              <img src="cases/realser.png" alt="realser" loading="lazy" />
+            </div>
+            <div class="case-meta">
+              <h3>realser</h3>
+              <p>Health · Conversion landing with online booking</p>
+            </div>
+          </article>
+          <article class="case-visual">
+            <div class="case-img-wrap">
+              <img src="cases/rock-in-rio-academy.png" alt="Rock in Rio Academy" loading="lazy" />
+            </div>
+            <div class="case-meta">
+              <h3>Rock in Rio Academy</h3>
+              <p>Education · Live &amp; hybrid immersion — high conversion</p>
+            </div>
+          </article>
+          <article class="case-visual">
+            <div class="case-img-wrap">
+              <img src="cases/ioa-imperatriz.png" alt="IOA Imperatriz" loading="lazy" />
+            </div>
+            <div class="case-meta">
+              <h3>IOA Imperatriz</h3>
+              <p>Clinic · Institutional site with treatments &amp; patient capture</p>
+            </div>
+          </article>
+          <article class="case-visual">
+            <div class="case-img-wrap">
+              <img src="cases/minhacirurgia.png" alt="MinhaCirurgia" loading="lazy" />
+            </div>
+            <div class="case-meta">
+              <h3>MinhaCirurgia</h3>
+              <p>Finance · Qualified form by procedure type</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="seo" data-slide="7">
+      <div class="inner glass">
+        <p class="eyebrow">Best SEO plan</p>
+        <h2>SEO Authority (SEO+)<br />+ recurring blog.</h2>
+        <div class="gold-line"></div>
+        <p class="lead">The top EXECUTAR SEO plan — everything in Growth, plus advanced performance, strategic link building, organic CRO, weekly monitoring, and biweekly strategy meetings.</p>
+        <div class="mix-row">
+          <div class="mix-chip"><strong>4</strong><span>blog posts / month</span></div>
+          <div class="mix-chip"><strong>10</strong><span>on-page pages</span></div>
+          <div class="mix-chip"><strong>Local</strong><span>Google Business</span></div>
+          <div class="mix-chip"><strong>Weekly</strong><span>monitoring</span></div>
+        </div>
+        <div class="grid-4" style="margin-top:1rem">
+          <article class="card">
+            <div class="card-num">01</div>
+            <h3>Technical + on-page</h3>
+            <p>Advanced audit, titles, meta, headings, URLs, schema — up to 10 strategic pages.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">02</div>
+            <h3>4 posts every month</h3>
+            <p>Editorial calendar for design searches in OC, San Diego, LA and Palm Springs.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">03</div>
+            <h3>Authority signals</h3>
+            <p>Strategic link building, local SEO, and competitor tracking every week.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">04</div>
+            <h3>Conversion focus</h3>
+            <p>Core Web Vitals + organic CRO on pages that already attract traffic.</p>
+          </article>
+        </div>
+        <p class="qty-callout">Blog cadence: <span>4 posts per month</span> · 12-month EXECUTAR agreement</p>
+      </div>
+    </section>
+
+    <section id="pilares" data-slide="8">
+      <div class="inner glass">
+        <p class="eyebrow">Why this package</p>
+        <h2>Four value blocks<br />for Sol Interiors.</h2>
+        <div class="gold-line"></div>
+        <div class="grid-4">
+          <article class="card">
+            <div class="card-num">01</div>
+            <h3>Service &amp; area pages</h3>
+            <p>Clear paths for full-home renovations and the regions you already serve.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">02</div>
+            <h3>Blog &amp; authority</h3>
+            <p>4 monthly articles that educate homeowners and feed Google + AI answers.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">03</div>
+            <h3>Project portfolio</h3>
+            <p>Dynamic gallery your team can update without waiting on a developer.</p>
+          </article>
+          <article class="card">
+            <div class="card-num">04</div>
+            <h3>Commercial integrations</h3>
+            <p>Forms, analytics and Search Console ready from day one of go-live.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="cronograma" data-slide="9">
+      <div class="inner glass">
+        <p class="eyebrow">Timeline</p>
+        <h2>60 to 90 days.<br />From kickoff to go-live.</h2>
+        <div class="gold-line"></div>
+        <div class="cron-grid">
+          <article class="cron-phase">
+            <div class="cron-week">Wk 1–2</div>
+            <h3>Kickoff &amp; architecture</h3>
+            <p>Alignment, personas, wireframes and conversion map for inquiry forms.</p>
+          </article>
+          <article class="cron-phase">
+            <div class="cron-week">Wk 3–5</div>
+            <h3>Design &amp; WordPress</h3>
+            <p>Design system, custom theme, blog and projects module.</p>
+          </article>
+          <article class="cron-phase">
+            <div class="cron-week">Wk 6–9</div>
+            <h3>Pages &amp; content</h3>
+            <p>All 8 pages + portfolio + blog shell with SEO-ready copy.</p>
+          </article>
+          <article class="cron-phase">
+            <div class="cron-week">Wk 10–11</div>
+            <h3>Integrations</h3>
+            <p>GA4, Search Console, CRM/forms and conversion tests.</p>
+          </article>
+          <article class="cron-phase">
+            <div class="cron-week">Wk 12</div>
+            <h3>QA &amp; review</h3>
+            <p>Responsive QA, performance checks and final client approval.</p>
+          </article>
+          <article class="cron-phase">
+            <div class="cron-week">Wk 13</div>
+            <h3>Go-live</h3>
+            <p>Publish, SSL, WordPress training and 30-day support — SEO Authority starts.</p>
+          </article>
+        </div>
+        <p class="lead" style="margin-top:1rem;">Incremental approvals each phase. Kickoff the week after commercial approval.</p>
+      </div>
+    </section>
+
+    <section id="investimento" data-slide="10">
+      <div class="inner glass">
+        <p class="eyebrow">Investment · USD</p>
+        <h2>Site Advanced + SEO Authority.</h2>
+        <div class="gold-line"></div>
+        <div class="plans">
+          <article class="plan">
+            <div class="plan-label">One-time · Site Advanced</div>
+            <h3>Pay in full</h3>
+            <p class="plan-sub">8 pages · WordPress · portfolio · blog ready</p>
+            <div class="plan-price">$12,000</div>
+            <p class="plan-total">Cash / single payment</p>
+            <ul>
+              <li><strong style="color:#fff">8 website pages</strong></li>
+              <li>Projects module + blog structure</li>
+              <li>60–90 day delivery</li>
+              <li>30 days post-launch support</li>
+            </ul>
+            <p class="plan-alt">Or installments: <strong style="color:#fff">$15,000 in 10×</strong> ($1,500 / invoice)</p>
+          </article>
+          <article class="plan featured">
+            <div class="plan-label">Recurring · Best SEO plan · Recommended</div>
+            <h3>SEO Authority</h3>
+            <p class="plan-sub">Includes Growth · 12-month agreement</p>
+            <div class="plan-price">$4,044 <small>/mo</small></div>
+            <p class="plan-total">Credit card · 12× · TCV $48,528</p>
+            <ul>
+              <li><strong style="color:#fff">4 blog posts / month</strong></li>
+              <li>Advanced technical SEO + CRO</li>
+              <li>Strategic link building + local SEO</li>
+              <li>Weekly monitoring · biweekly meetings</li>
+            </ul>
+            <p class="plan-alt">Or boleto / invoice: <strong style="color:#fff">$5,044/mo</strong> · 12× · TCV $60,528</p>
+          </article>
+        </div>
+        <div class="seo-strip">
+          <div>
+            <h3>Package snapshot</h3>
+            <p><strong style="color:#fff">8 pages</strong> on the new site · <strong style="color:#fff">4 SEO blog posts every month</strong> · SEO Authority: <strong style="color:#fff">$4,044/mo CC</strong> or <strong style="color:#fff">$5,044/mo boleto</strong>.</p>
+          </div>
+          <div class="seo-price">
+            $12k or 10× $15k
+            <small>+ $4,044/mo CC</small>
+          </div>
+        </div>
+        <div class="cta-box">
+          <h3>Next step</h3>
+          <p>Confirm Site Advanced (cash <strong>$12,000</strong> or <strong>$15,000 in 10×</strong>) and SEO Authority payment (<strong>$4,044/mo credit card</strong> or <strong>$5,044/mo boleto</strong>) — target kickoff week of <strong>August 4, 2026</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="deck-footer">
+    <span>Sol Interiors × V4 · Site Advanced + SEO Authority</span>
+    <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+    <span id="slideCounter">1 / 10</span>
+  </footer>
+
+  <script>
+  (function () {
+    const logoTpl = document.getElementById("v4-logo-tpl");
+    const clientLogoTpl = document.getElementById("client-logo-tpl");
+    document.querySelectorAll("#deck section").forEach((slide) => {
+      slide.insertBefore(logoTpl.content.cloneNode(true), slide.firstChild);
+      slide.insertBefore(clientLogoTpl.content.cloneNode(true), slide.firstChild);
+    });
+
+    const TOTAL = 10;
+    let current = 1;
+    const slides = Array.from(document.querySelectorAll("#deck section[id]"));
+    const navLinks = document.querySelectorAll(".nav-dots a");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressFill = document.getElementById("progressFill");
+    const slideCounter = document.getElementById("slideCounter");
+    const blendBar = document.querySelector(".blend-progress");
+
+    function updateUI() {
+      const p = current / TOTAL;
+      if (progressFill) progressFill.style.width = (p * 100) + "%";
+      if (slideCounter) slideCounter.textContent = current + " / " + TOTAL;
+      if (blendBar) blendBar.style.transform = "scaleX(" + Math.max(0.05, p) + ")";
+      document.documentElement.style.setProperty("--slide-progress", p);
+      if (prevBtn) prevBtn.disabled = current === 1;
+      if (nextBtn) nextBtn.disabled = current === TOTAL;
+      navLinks.forEach((a) => a.classList.toggle("active", Number(a.dataset.slide) === current));
+    }
+
+    function goTo(n, dir) {
+      if (n < 1 || n > TOTAL || n === current) return;
+      const prev = slides[current - 1];
+      const next = slides[n - 1];
+      const fwd = dir === "forward" || (dir !== "back" && n > current);
+      prev.classList.remove("slide-active");
+      prev.classList.add(fwd ? "slide-exit-left" : "slide-exit-right");
+      setTimeout(() => prev.classList.remove("slide-exit-left", "slide-exit-right"), 420);
+      next.classList.add("slide-active");
+      current = n;
+      updateUI();
+    }
+
+    if (prevBtn) prevBtn.addEventListener("click", () => goTo(current - 1, "back"));
+    if (nextBtn) nextBtn.addEventListener("click", () => goTo(current + 1, "forward"));
+    navLinks.forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); goTo(Number(a.dataset.slide)); }));
+
+    document.addEventListener("wheel", (e) => {
+      if (Math.abs(e.deltaY) < 20) return;
+      e.preventDefault();
+      goTo(current + (e.deltaY > 0 ? 1 : -1), e.deltaY > 0 ? "forward" : "back");
+    }, { passive: false });
+
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowRight", " ", "PageDown"].includes(e.key)) { e.preventDefault(); goTo(current + 1, "forward"); }
+      if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); goTo(current - 1, "back"); }
+    });
+
+    let tx = 0;
+    document.addEventListener("touchstart", (e) => { tx = e.changedTouches[0].screenX; }, { passive: true });
+    document.addEventListener("touchend", (e) => {
+      const dx = e.changedTouches[0].screenX - tx;
+      if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1), dx < 0 ? "forward" : "back");
+    }, { passive: true });
+
+    updateUI();
+  })();
+  </script>
+</body>
+</html>
